@@ -3,19 +3,80 @@ import { Heart, Star, ArrowLeft } from 'lucide-react';
 import { useWeatherAPI } from './hooks/useWeatherAPI';
 import { WeatherSearch } from './components/WeatherSearch';
 import { WeatherDisplay } from './components/WeatherDisplay';
+import { useFavorites } from './hooks/useFavorites';
+import { FavoritesList } from './components/FavoritesList';
 import './Weather.css';
+
+type ViewMode = 'weather' | 'favorites';
 
 function Weather() {
   const { 
     weatherData, 
     isLoading, 
     searchByCity, 
+    searchByCoords, 
   } = useWeatherAPI();
+
+  const { 
+    favorites, 
+    addToFavorites, 
+    removeFromFavorites, 
+    isFavorite 
+  } = useFavorites();
+
+  const [currentView, setCurrentView] = useState<ViewMode>('weather');
 
   // Load default location on mount
   useEffect(() => {
     searchByCity("Newcastle Upon Tyne");
   }, [searchByCity]);
+
+  const handleSaveToFavorites = useCallback(() => {
+    if (!weatherData) return;
+    
+    const success = addToFavorites(weatherData);
+    if (!success) {
+      // Could show a toast notification here instead
+      alert("Location already in favorites!");
+    }
+  }, [weatherData, addToFavorites]);
+
+  const handleLoadFavorite = useCallback((favorite: FavoriteLocation) => {
+    searchByCoords(favorite.coord.lat, favorite.coord.lon);
+    setCurrentView('weather');
+  }, [searchByCoords]);
+
+  const isCurrentLocationFavorite = weatherData ? isFavorite(weatherData.location) : false;
+
+  if (currentView === 'favorites') {
+    return (
+        <section className="weather">
+          <div className="container container--large">
+            <header className="favorites-header">
+              <button 
+                onClick={() => setCurrentView('weather')}
+                className="btn btn--back"
+                aria-label="Back to weather"
+              >
+                <ArrowLeft size={20} />
+                Back to Weather
+              </button>
+              
+              <h1 className="favorites-title">
+                <Star size={24} />
+                Favorite Locations
+              </h1>
+            </header>
+
+            <FavoritesList 
+              favorites={favorites}
+              onLoadFavorite={handleLoadFavorite}
+              onRemoveFavorite={removeFromFavorites}
+            />
+          </div>
+        </section>
+    );
+  }
 
   return (
       <section className="weather">
@@ -24,6 +85,26 @@ function Weather() {
             onSearch={searchByCity}
             isLoading={isLoading}
           />
+
+          <nav className="weather-navigation">
+            <button 
+              className="btn"
+              onClick={() => setCurrentView('favorites')}
+            >
+              <Star size={16} />
+              Favorites ({favorites.length})
+            </button>
+            
+            <button 
+              className={`btn ${isCurrentLocationFavorite ? 'btn--favorited' : 'btn--save'}`}
+              onClick={handleSaveToFavorites}
+              disabled={!weatherData || isCurrentLocationFavorite}
+              title={isCurrentLocationFavorite ? 'Already in favorites' : 'Save to favorites'}
+            > 
+              <Heart size={18} />
+              {isCurrentLocationFavorite ? 'Saved' : 'Save To Favorites'}
+            </button>
+          </nav>
           
           {isLoading ? (
             <section className="weather-placeholder" aria-live="polite">
