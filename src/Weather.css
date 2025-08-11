@@ -52,6 +52,7 @@
 .weather-summary .location{
     color: #ffffff;
     font-size: 2rem;
+    font-weight: 400;
 }
 
 .btn--save:hover svg{
@@ -85,4 +86,43 @@
 }
 .weather-data__item span{
     text-align: center;
+}
+
+.favorites-title{
+    color:#ffffff;
+    margin: 2rem 0;
+}
+.favorites-grid {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.favorites-grid .favorite-card {
+  flex: 0 1 100%;
+  align-items: center;
+  gap: 1rem;
+}
+
+.favorites-grid .favorite-card .favorite-card__weather{
+    color:#ffffff;
+    text-align: left;
+}
+
+.favorite-card__remove svg{
+    fill: red;
+}
+
+@media only screen and (min-width: 500px){
+    .favorites-grid .favorite-card {
+        flex: 0 1 calc(50% - 2rem);
+    }
+}
+
+@media only screen and (min-width: 700px){
+    .favorites-grid .favorite-card {
+        flex: 0 1 calc(33.33% - 2rem);
+    }
 }

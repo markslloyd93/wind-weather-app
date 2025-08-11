@@ -68,7 +68,6 @@ function Weather() {
               </button>
               
               <h1 className="favorites-title">
-                <Star size={24} />
                 Favorite Locations
               </h1>
             </header>
