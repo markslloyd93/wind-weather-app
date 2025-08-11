@@ -5,6 +5,8 @@ import { WeatherSearch } from './components/WeatherSearch';
 import { WeatherDisplay } from './components/WeatherDisplay';
 import { useFavorites } from './hooks/useFavorites';
 import { FavoritesList } from './components/FavoritesList';
+import { ErrorMessage } from './components/ErrorMessage';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import './Weather.css';
 
 type ViewMode = 'weather' | 'favorites';
@@ -13,8 +15,10 @@ function Weather() {
   const { 
     weatherData, 
     isLoading, 
+    error, 
     searchByCity, 
     searchByCoords, 
+    clearError
   } = useWeatherAPI();
 
   const { 
@@ -50,6 +54,7 @@ function Weather() {
 
   if (currentView === 'favorites') {
     return (
+      <ErrorBoundary>
         <section className="weather">
           <div className="container container--large">
             <header className="favorites-header">
@@ -75,10 +80,12 @@ function Weather() {
             />
           </div>
         </section>
+      </ErrorBoundary>
     );
   }
 
   return (
+    <ErrorBoundary>
       <section className="weather">
         <div className="container container--large">
           <WeatherSearch 
@@ -105,6 +112,13 @@ function Weather() {
               {isCurrentLocationFavorite ? 'Saved' : 'Save To Favorites'}
             </button>
           </nav>
+
+          {error && (
+            <ErrorMessage 
+              message={error} 
+              onDismiss={clearError}
+            />
+          )}
           
           {isLoading ? (
             <section className="weather-placeholder" aria-live="polite">
@@ -120,6 +134,7 @@ function Weather() {
           )}
         </div>
       </section>
+    </ErrorBoundary>
   );
 }
 
